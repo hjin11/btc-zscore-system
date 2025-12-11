@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bitcoin Z-Score Trading Strategy Analyzer</title>
+
+    <!-- FIXED: Remove Flask path -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-container">
+        <div class="logo-section">
+          <div class="logo-icon">📊</div>
+          <div class="logo-text">
+            <h1>Bitcoin Z-Score Analyzer</h1>
+            <p>Advanced Trading Strategy Platform</p>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <!-- FIXED navigation links -->
+          <a href="index.html" class="nav-link active">Home</a>
+          <a href="docs.html" class="nav-link">Documentation</a>
+          <a href="about.html" class="nav-link">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container">
+      <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+          <h2 class="hero-title">Bitcoin Z-Score Strategy</h2>
+          <p class="hero-subtitle">
+            Backtest and analyze your trading strategy with advanced performance
+            metrics
+          </p>
+        </section>
+
+        <!-- Parameter Input Section -->
+        <section class="card input-card" id="inputSection">
+          <div class="card-header">
+            <h2>Strategy Parameters</h2>
+            <p class="card-description">
+              Configure your trading strategy parameters for backtesting
+            </p>
+          </div>
+
+          <form id="backtestForm" action="javascript:void(0);">
+            <div class="form-row">
+              <!-- Strategy Type -->
+              <div class="form-group">
+                <label for="logic_type">
+                  <span class="label-icon">🎯</span> Strategy Type
+                </label>
+                <select id="logic_type" name="logic_type" required>
+                  <option value="trend">Trend Strategy</option>
+                  <option value="fast" selected>Fast Strategy</option>
+                </select>
+                <small>Recommended: Fast Strategy</small>
+              </div>
+
+              <!-- Trading Side -->
+              <div class="form-group">
+                <label for="side">
+                  <span class="label-icon">↕️</span> Trading Side
+                </label>
+                <select id="side" name="side" required>
+                  <option value="long" selected>Long Only</option>
+                  <option value="short">Short Only</option>
+                  <option value="both">Both Directions</option>
+                </select>
+                <small>Recommended: Long Only</small>
+              </div>
+            </div>
+
+            <!-- Z-Score Parameters -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="window">
+                  <span class="label-icon">📏</span> Z-Score Window Size
+                </label>
+                <input
+                  type="number"
+                  id="window"
+                  name="window"
+                  value="200"
+                  min="1"
+                  max="1000"
+                  required
+                />
+                <small>Recommended: 200</small>
+              </div>
+
+              <div class="form-group">
+                <label for="entry_threshold">
+                  <span class="label-icon">📈</span> Entry Threshold
+                </label>
+                <input
+                  type="number"
+                  id="entry_threshold"
+                  name="entry_threshold"
+                  value="2.3"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  required
+                />
+                <small>Recommended: 2.3</small>
+              </div>
+
+              <div class="form-group">
+                <label for="exit_threshold">
+                  <span class="label-icon">📉</span> Exit Threshold
+                </label>
+                <input
+                  type="number"
+                  id="exit_threshold"
+                  name="exit_threshold"
+                  value="-1"
+                  step="0.1"
+                  min="-5"
+                  max="0"
+                  required
+                />
+                <small>Recommended: -1</small>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="runBacktestBtn">
+              <span class="btn-content">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">Run Backtest</span>
+              </span>
+              <span class="btn-loader" style="display: none">
+                <span class="spinner-small"></span> Running backtest...
+              </span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Results Section -->
+        <section
+          class="card results-card"
+          id="resultsSection"
+          style="display: none"
+        >
+          <div class="card-header">
+            <h2>Backtest Results</h2>
+          </div>
+
+          <div
+            id="loadingIndicator"
+            class="loading-container"
+            style="display: none"
+          >
+            <div class="spinner"></div>
+            <p class="loading-text">Fetching data...</p>
+          </div>
+
+          <div
+            id="errorMessage"
+            class="error-message"
+            style="display: none"
+          ></div>
+
+          <div id="metricsDisplay" style="display: none">
+            <div class="section-header">
+              <h3>Performance Metrics</h3>
+              <div class="info-badge" id="dataPointsBadge"></div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card metric-primary">
+                <div class="metric-icon">📊</div>
+                <div class="metric-content">
+                  <div class="metric-label">Sharpe Ratio</div>
+                  <div class="metric-value" id="sharpeRatio">-</div>
+                </div>
+              </div>
+
+              <div class="metric-card metric-primary">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-content">
+                  <div class="metric-label">Calmar Ratio</div>
+                  <div class="metric-value" id="calmarRatio">-</div>
+                </div>
+              </div>
+
+              <div class="metric-card metric-warning">
+                <div class="metric-icon">📉</div>
+                <div class="metric-content">
+                  <div class="metric-label">Max Drawdown</div>
+                  <div class="metric-value" id="maxDrawdown">-</div>
+                </div>
+              </div>
+
+              <div class="metric-card metric-success">
+                <div class="metric-icon">💰</div>
+                <div class="metric-content">
+                  <div class="metric-label">Annualized Return</div>
+                  <div class="metric-value" id="annualizedReturn">-</div>
+                </div>
+              </div>
+
+              <div class="metric-card metric-success">
+                <div class="metric-icon">💵</div>
+                <div class="metric-content">
+                  <div class="metric-label">Total Return</div>
+                  <div class="metric-value" id="totalReturn">-</div>
+                </div>
+              </div>
+
+              <div class="metric-card metric-info">
+                <div class="metric-icon">🔄</div>
+                <div class="metric-content">
+                  <div class="metric-label">Number of Trades</div>
+                  <div class="metric-value" id="numTrades">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <div class="info-header">
+                <span class="info-icon">📅</span>
+                <h4>Backtest Period</h4>
+              </div>
+              <p id="backtestPeriod">-</p>
+            </div>
+
+            <div class="chart-container">
+              <div class="chart-header">
+                <span class="chart-icon">📈</span>
+                <h4>Equity Curve</h4>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="equityCurveChart"></canvas>
+              </div>
+            </div>
+
+            <div id="evaluationSection" class="evaluation-section">
+              <div class="evaluation-header">
+                <span class="evaluation-icon">🔍</span>
+                <h3>Strategy Evaluation</h3>
+              </div>
+              <div id="evaluationResult" class="evaluation-result"></div>
+              <ul id="evaluationReasons" class="evaluation-reasons"></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Telegram Section -->
+        <section
+          class="card telegram-card"
+          id="telegramSection"
+          style="display: none"
+        >
+          <div class="card-header">
+            <h2>Telegram Configuration</h2>
+            <p class="card-description">
+              Configure Telegram Bot to receive real-time trading signals
+            </p>
+          </div>
+
+          <form id="telegramForm">
+            <div class="form-group">
+              <label for="telegram_token">
+                <span class="label-icon">🔑</span>
+                Telegram Bot Token
+              </label>
+              <input
+                type="text"
+                id="telegram_token"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Enter your Bot Token"
+                required
+              />
+              <small>Search for @BotFather to create a bot</small>
+            </div>
+
+            <div class="form-group">
+              <label for="telegram_chat_id">
+                <span class="label-icon">💬</span>
+                Telegram Chat ID
+              </label>
+              <input
+                type="text"
+                id="telegram_chat_id"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Enter your Chat ID"
+                required
+              />
+              <small>Search for @userinfobot to get your Chat ID</small>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-secondary"
+              id="testTelegramBtn"
+            >
+              <span class="btn-content">
+                <span class="btn-icon">📱</span>
+                <span class="btn-text">Test Connection</span>
+              </span>
+              <span class="btn-loader" style="display: none">
+                <span class="spinner-small"></span> Testing...
+              </span>
+            </button>
+          </form>
+
+          <div
+            id="telegramResult"
+            class="result-message"
+            style="display: none"
+          ></div>
+
+          <!-- Live Monitoring -->
+          <div
+            id="liveMonitorSection"
+            style="
+              display: none;
+              margin-top: 2rem;
+              padding-top: 2rem;
+              border-top: 1px solid #e5e7eb;
+            "
+          >
+            <div class="card-header">
+              <h3>Live Monitoring</h3>
+              <p class="card-description">
+                Monitor Bitcoin price and receive real-time trading signals
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="startMonitorBtn"
+              >
+                <span class="btn-content">
+                  <span class="btn-icon">▶️</span>
+                  <span class="btn-text">Start Monitor</span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-danger"
+                id="stopMonitorBtn"
+                style="display: none"
+              >
+                <span class="btn-content">
+                  <span class="btn-icon">⏹️</span>
+                  <span class="btn-text">Stop Monitor</span>
+                </span>
+              </button>
+            </div>
+
+            <div
+              id="monitorStatus"
+              class="result-message"
+              style="display: none"
+            ></div>
+
+            <div
+              id="monitorWarning"
+              class="monitor-warning"
+              style="display: none"
+            >
+              ⚠️ Monitoring in progress — Please keep this page open. Do not
+              turn off your computer, and avoid switching to the About or
+              Documentation pages to ensure that signals and notifications are
+              sent properly.
+            </div>
+
+            <div
+              id="lastCheckInfo"
+              style="
+                margin-top: 1rem;
+                padding: 1rem;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 0.9rem;
+              "
+            >
+              <div>
+                <strong>Status:</strong>
+                <span id="monitorStatusText">Not monitoring</span>
+              </div>
+              <div style="margin-top: 0.5rem">
+                <strong>Last Check:</strong> <span id="lastCheckTime">-</span>
+              </div>
+              <div style="margin-top: 0.5rem">
+                <strong>Current Price:</strong> <span id="currentPrice">-</span>
+              </div>
+              <div style="margin-top: 0.5rem">
+                <strong>Current Z-Score:</strong>
+                <span
+                  id="currentZScore"
+                  style="color: var(--accent); font-weight: 600"
+                  >-</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>About</h3>
+          <p>
+            Bitcoin Z-Score Analyzer is an advanced backtesting tool for trading
+            research and strategy evaluation.
+          </p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Features</h3>
+          <ul>
+            <li>Advanced Backtesting</li>
+            <li>Performance Metrics</li>
+            <li>Strategy Evaluation</li>
+            <li>Telegram Notifications</li>
+            <li>Live Monitoring</li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Disclaimer</h3>
+          <p>⚠️ For educational and research purposes only.</p>
+          <p>
+            ⚠️ This platform does not provide financial advice, and users assume
+            full responsibility for all investment decisions.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>Bitcoin Z-Score Analyzer</p>
+      </div>
+    </footer>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Main Application Script -->
+    <script src="script.js"></script>
+  </body>
+</html>

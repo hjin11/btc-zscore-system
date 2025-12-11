@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentation – Bitcoin Z-Score Analyzer</title>
+
+    <!-- FIXED: Remove Flask path -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-container">
+        <div class="logo-section">
+          <div class="logo-icon">📘</div>
+          <div class="logo-text">
+            <h1>Documentation</h1>
+            <p>User Guide & Technical Notes</p>
+          </div>
+        </div>
+
+        <!-- FIXED navigation links -->
+        <nav class="header-nav">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="docs.html" class="nav-link active">Documentation</a>
+          <a href="about.html" class="nav-link">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container">
+      <main class="content-section">
+        <h2 class="hero-title">User Documentation</h2>
+
+        <p class="lead-text">
+          This guide explains how to use the Bitcoin Z-Score Analyzer for
+          backtesting and evaluating mean reversion trading strategies.
+        </p>
+
+        <h3>1. Strategy Parameters</h3>
+
+        <div class="info-box parameters-box">
+
+          <!-- Strategy Type -->
+          <div class="param-item">
+            <h4>🎯 Strategy Type</h4>
+            <p>Two execution modes determine how trades are triggered:</p>
+
+            <ul>
+              <li>
+                <strong>Trend Strategy</strong><br />
+                <ul>
+                  <li>Z-Score > Entry → open/hold <strong>long</strong></li>
+                  <li>Z-Score < Exit → open/hold <strong>short</strong></li>
+                </ul>
+              </li>
+
+              <li style="margin-top: 10px">
+                <strong>Fast Strategy</strong><br />
+                <ul>
+                  <li>Z-Score > Entry → open long</li>
+                  <li>Z-Score < Entry → close long</li>
+                  <li>Z-Score < Exit → open short</li>
+                  <li>Z-Score > Exit → close short</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Window Size -->
+          <div class="param-item">
+            <h4>📏 Z-Score Window Size</h4>
+            <p>
+              Rolling lookback window used to calculate the Z-Score of Bitcoin prices.
+              A larger window produces smoother signals, while a smaller window reacts faster
+              but may be noisier. Typical values range from 50–600 candles.
+            </p>
+          </div>
+
+          <!-- Entry Threshold -->
+          <div class="param-item">
+            <h4>📈 Entry Threshold</h4>
+            <p>
+              Z-Score level that triggers a new position. Higher thresholds reduce trade frequency
+              and focus on stronger dislocations; lower thresholds create more signals.
+            </p>
+          </div>
+
+          <!-- Exit Threshold -->
+          <div class="param-item">
+            <h4>📉 Exit Threshold</h4>
+            <p>
+              Z-Score level used to close or reverse positions. When Z-Score moves back toward
+              the mean, the strategy exits or switches direction. Usually closer to zero
+              than the entry.
+            </p>
+          </div>
+
+          <!-- Trading Side -->
+          <div class="param-item">
+            <h4>🔁 Trading Side</h4>
+            <p>Defines which position directions are allowed during the backtest:</p>
+
+            <ul>
+              <li><strong>Long only:</strong> Opens buy positions only.</li>
+              <li><strong>Short only:</strong> Opens sell positions only.</li>
+              <li><strong>Both:</strong> Strategy can switch between long and short.</li>
+            </ul>
+          </div>
+
+        </div>
+
+
+        <h3>2. Performance Metrics</h3>
+
+        <div class="info-box metrics-box">
+          <!-- Sharpe Ratio -->
+          <div class="metric-item">
+            <h4>📊 Sharpe Ratio</h4>
+            <p>
+              Measures risk-adjusted returns. Higher Sharpe values indicate
+              better performance per unit of volatility.
+            </p>
+          </div>
+
+          <!-- Calmar Ratio -->
+          <div class="metric-item">
+            <h4>⚡ Calmar Ratio</h4>
+            <p>
+              Compares annual return to maximum drawdown. High values represent
+              strong performance with low downside risk.
+            </p>
+          </div>
+
+          <!-- Max Drawdown -->
+          <div class="metric-item">
+            <h4>📉 Max Drawdown</h4>
+            <p>
+              Largest decline from peak to trough during the backtest.
+              Represents worst-case scenario loss.
+            </p>
+          </div>
+
+          <!-- Annualized Return -->
+          <div class="metric-item">
+            <h4>💰 Annualized Return</h4>
+            <p>
+              Estimated yearly growth rate based on compounding. Useful for
+              comparing strategies across different time periods.
+            </p>
+          </div>
+
+          <!-- Total Return -->
+          <div class="metric-item">
+            <h4>💵 Total Return</h4>
+            <p>
+              Overall percentage gain or loss across the entire backtest range.
+            </p>
+          </div>
+
+          <!-- Number of Trades -->
+          <div class="metric-item">
+            <h4>🔄 Number of Trades</h4>
+            <p>
+              Represents total trading activity. Higher trade counts indicate a
+              more active strategy.
+            </p>
+          </div>
+        </div>
+
+        <h3>3. Equity Curve</h3>
+
+        <div class="info-box metrics-box">
+          <div class="metric-item">
+            <h4>📈 Equity Curve</h4>
+            <p>
+              Shows the cumulative growth of the trading account over time. It
+              represents how the strategy’s equity changes after each trade or
+              price movement.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🕒 Time Axis (X-axis)</h4>
+            <p>
+              Represents the progression of time, using each candle or hourly
+              data point from the backtest period.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>💵 Equity Axis (Y-axis)</h4>
+            <p>
+              Displays the account value after each update. Rising lines
+              indicate profitable periods, while drops indicate drawdowns.
+            </p>
+          </div>
+        </div>
+
+        <h3>4. Telegram Notification Setup</h3>
+
+        <div class="info-box metrics-box">
+
+          <div class="metric-item">
+            <h4>📱 Telegram Setup Overview</h4>
+            <p>
+              Configure Telegram notifications to receive real-time trading alerts directly on your device.
+              Follow the steps below to connect your bot and retrieve your chat ID.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🔍 Step 1 — Open Telegram</h4>
+            <p>Open the Telegram application on your phone or desktop.</p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🤖 Step 2 — Search for <strong>BotFather</strong></h4>
+            <p>Use the search bar to locate the official BotFather account.</p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🆕 Step 3 — Create a New Bot</h4>
+            <p>Send the command:</p>
+            <pre><code>/newbot</code></pre>
+            <p>You will be prompted to choose a bot name and username.</p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🔑 Step 4 — Get Your Bot API Token</h4>
+            <p>BotFather will generate an API key similar to:</p>
+            <pre><code>1234567890:ABCdefGHIJKlmnoPQRstuVWxyz12345678</code></pre>
+            <p>Enter this token into the analyzer settings.</p>
+            <p><strong>This API token must be kept private and should not be shared with anyone.</strong></p>
+          </div>
+
+          <div class="metric-item">
+            <h4>▶️ Step 5 — Start Your Bot</h4>
+            <p>
+              Search for your new bot in Telegram and press the <strong>Start</strong> button to activate it.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🆔 Step 6 — Retrieve Your Chat ID</h4>
+            <p>Send a message to your bot, then open the link below:</p>
+            <pre><code>https://api.telegram.org/botYOUR_TOKEN/getUpdates</code></pre>
+            <p>You will see a response containing:</p>
+            <pre><code>"chat": { "id": 987654321 }</code></pre>
+            <p>The number shown in the <strong>"id"</strong> field is your Chat ID.</p>
+          </div>
+
+          <div class="metric-item">
+            <h4>✔️ Step 7 — Enter Token & Chat ID</h4>
+            <p>Fill in your Bot Token and Chat ID inside the analyzer to enable Telegram alerts.</p>
+          </div>
+
+        </div>
+
+
+        <h3>5. Monitoring Requirements</h3>
+
+        <div class="info-box metrics-box">
+          
+          <div class="metric-item">
+            <h4>⚠️ Important Notes Before Starting Monitoring</h4>
+            <p>
+              The live monitoring feature runs entirely inside your browser. To ensure signals
+              are sent correctly, please follow these requirements:
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🖥️ Keep This Page Open</h4>
+            <p>
+              Do not close the browser tab. Closing the page will stop the monitoring
+              process immediately and no signals will be sent.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>💤 Do Not Let Your Computer Sleep</h4>
+            <p>
+              Sleep mode, hibernation, or screen-off suspension will pause all background
+              scripts. The system will not be able to fetch prices or generate signals.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🚫 Do Not Switch to Other Pages</h4>
+            <p>
+              While monitoring is running, stay on the <strong>Home</strong> page. Switching
+              to <strong>Documentation</strong> or <strong>About</strong> will unload the
+              monitoring script and stop all updates.
+            </p>
+          </div>
+
+          <div class="metric-item">
+            <h4>🔌 Keep Your Internet Connection Active</h4>
+            <p>
+              A stable internet connection is required to fetch hourly data from Bybit
+              and send notifications to Telegram.
+            </p>
+          </div>
+
+        </div>
+
+
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>About</h3>
+          <p>
+            Bitcoin Z-Score Analyzer is an advanced backtesting tool for trading
+            research and strategy evaluation.
+          </p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Features</h3>
+          <ul>
+            <li>Advanced Backtesting</li>
+            <li>Performance Metrics</li>
+            <li>Strategy Evaluation</li>
+            <li>Telegram Notifications</li>
+            <li>Live Monitoring</li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Disclaimer</h3>
+          <p>⚠️ For educational and research purposes only.</p>
+          <p>
+            ⚠️ This platform does not provide financial advice, and users assume
+            full responsibility for all investment decisions.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>Bitcoin Z-Score Analyzer</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
