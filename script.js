@@ -1,7 +1,5 @@
-// ============================================================================
 // Frontend-only Bitcoin Trading Strategy Backtest System
 // All backend functionality has been migrated to pure JavaScript
-// ============================================================================
 
 // Configuration
 const BYBIT_API_BASE = "https://api.bybit.com/v5/market";
@@ -30,14 +28,12 @@ let isMonitoring = false;
 let lastHourlyTimestamp = null; // Track last hourly K-line timestamp to detect new hour
 let currentPosition = "none"; // Track current position state for hourly updates
 
-// ============================================================================
-// Data Fetcher (replaces data_fetcher.py)
-// ============================================================================
+// Data Fetcher 
 
 class DataFetcher {
-  /**
-   * Fetch historical candlestick data from Bybit API
-   */
+
+  // Fetch historical candlestick data from Bybit API
+
   async fetchHistoricalData(
     symbol = "BTCUSDT",
     interval = "60",
@@ -100,9 +96,8 @@ class DataFetcher {
     return processedData;
   }
 
-  /**
-   * Fetch real-time price from Bybit API
-   */
+
+  // Fetch real-time price from Bybit API
   async fetchRealtimePrice(symbol = "BTCUSDT") {
     try {
       const url = `${BYBIT_API_BASE}/tickers?category=linear&symbol=${symbol}`;
@@ -183,10 +178,7 @@ class DataFetcher {
   }
 }
 
-// ============================================================================
-// Backtest Engine (replaces backtest_engine.py)
-// ============================================================================
-
+// Backtest Engine 
 class BacktestEngine {
   constructor() {}
 
@@ -317,9 +309,7 @@ class BacktestEngine {
   }
 }
 
-// ============================================================================
-// Metrics Calculator (replaces metrics.py)
-// ============================================================================
+// Metrics Calculator
 
 class MetricsCalculator {
   constructor(interval = "1h") {
@@ -335,44 +325,6 @@ class MetricsCalculator {
         "4h": (365 * 24) / 4,
         "1d": 365,
       }[interval] || 365 * 24;
-  }
-
-  calculateWinRate(df) {
-    const tradeEnds = [];
-    let prevPos = 0;
-
-    for (let i = 0; i < df.length; i++) {
-      const currentPos = df[i].pos;
-      if (prevPos !== 0 && currentPos === 0) {
-        tradeEnds.push(i);
-      }
-      prevPos = currentPos;
-    }
-
-    if (tradeEnds.length === 0) {
-      return 0.0;
-    }
-
-    let winningTrades = 0;
-    for (const endIdx of tradeEnds) {
-      let startIdx = endIdx - 1;
-      const endPos = df[endIdx - 1].pos;
-      while (startIdx >= 0 && df[startIdx].pos === endPos) {
-        startIdx--;
-      }
-      startIdx++;
-
-      if (startIdx < endIdx) {
-        const tradePnl = df[endIdx].cumulativePnl - df[startIdx].cumulativePnl;
-        if (tradePnl > 0) {
-          winningTrades++;
-        }
-      }
-    }
-
-    return tradeEnds.length > 0
-      ? (winningTrades / tradeEnds.length) * 100
-      : 0.0;
   }
 
   calculateAllMetrics(df, window) {
@@ -406,9 +358,6 @@ class MetricsCalculator {
     const totalReturn = cumulativePnl[cumulativePnl.length - 1];
     const numTrades = Math.floor(trades);
     const effectivePeriods = validDf.length - window;
-    const tradeFrequency =
-      effectivePeriods > 0 ? (numTrades / effectivePeriods) * 100 : 0.0;
-    const winRate = this.calculateWinRate(validDf);
 
     const startDate = new Date(validDf[0].time);
     const endDate = new Date(validDf[validDf.length - 1].time);
@@ -423,8 +372,6 @@ class MetricsCalculator {
       "Annualized Return": Number(annualizedReturn.toFixed(4)),
       "Total Return": Number(totalReturn.toFixed(4)),
       "Number of Trades": numTrades,
-      "Trade Frequency %": Number(tradeFrequency.toFixed(4)),
-      "Win Rate %": Number(winRate.toFixed(2)),
       "Start Date": startDate.toISOString().replace("T", " ").substring(0, 19),
       "End Date": endDate.toISOString().replace("T", " ").substring(0, 19),
       "Period (days)": periodDays,
@@ -439,8 +386,6 @@ class MetricsCalculator {
       "Annualized Return": 0.0,
       "Total Return": 0.0,
       "Number of Trades": 0,
-      "Trade Frequency %": 0.0,
-      "Win Rate %": 0.0,
       "Start Date": "N/A",
       "End Date": "N/A",
       "Period (days)": 0,
@@ -448,16 +393,14 @@ class MetricsCalculator {
   }
 }
 
-// ============================================================================
-// Strategy Evaluator (replaces strategy_evaluator.py)
-// ============================================================================
+// Strategy Evaluator 
 
 class StrategyEvaluator {
   constructor(
     minSharpeRatio = 1.0,
     minCalmarRatio = 1.0,
-    maxDrawdownThreshold = -0.3,
-    minTrades = 10
+    maxDrawdownThreshold = -0.5,
+    minTrades = 80
   ) {
     this.minSharpeRatio = minSharpeRatio;
     this.minCalmarRatio = minCalmarRatio;
@@ -470,56 +413,64 @@ class StrategyEvaluator {
     let passedChecks = 0;
     let totalChecks = 0;
 
+    // Sharpe Ratio
     totalChecks++;
     const sharpe = metrics["Sharpe Ratio"];
-    if (!isNaN(sharpe) && sharpe >= this.minSharpeRatio) {
+    if (!isNaN(sharpe) && sharpe > this.minSharpeRatio) {
       passedChecks++;
       reasons.push(
-        `✓ Sharpe Ratio (${sharpe.toFixed(2)}) >= ${this.minSharpeRatio}`
+        `✓ Sharpe Ratio (${sharpe.toFixed(2)}) > ${this.minSharpeRatio}`
       );
     } else {
       reasons.push(
-        `✗ Sharpe Ratio (${isNaN(sharpe) ? "N/A" : sharpe.toFixed(2)}) < ${
+        `✗ Sharpe Ratio (${isNaN(sharpe) ? "N/A" : sharpe.toFixed(2)}) ≤ ${
           this.minSharpeRatio
         }`
       );
     }
 
+    // Calmar Ratio
     totalChecks++;
     const calmar = metrics["Calmar Ratio"];
-    if (!isNaN(calmar) && calmar >= this.minCalmarRatio) {
+    if (!isNaN(calmar) && calmar > this.minCalmarRatio) {
       passedChecks++;
       reasons.push(
-        `✓ Calmar Ratio (${calmar.toFixed(2)}) >= ${this.minCalmarRatio}`
+        `✓ Calmar Ratio (${calmar.toFixed(2)}) > ${this.minCalmarRatio}`
       );
     } else {
       reasons.push(
-        `✗ Calmar Ratio (${isNaN(calmar) ? "N/A" : calmar.toFixed(2)}) < ${
+        `✗ Calmar Ratio (${isNaN(calmar) ? "N/A" : calmar.toFixed(2)}) ≤ ${
           this.minCalmarRatio
         }`
       );
     }
 
+    // Max Drawdown
     totalChecks++;
     const mdd = metrics["Max Drawdown"];
-    if (mdd >= this.maxDrawdownThreshold) {
+    if (mdd < this.maxDrawdownThreshold) {
       passedChecks++;
       reasons.push(
-        `✓ Max Drawdown (${mdd.toFixed(4)}) >= ${this.maxDrawdownThreshold}`
+        `✓ Max Drawdown (${mdd.toFixed(4)}) < ${this.maxDrawdownThreshold}`
       );
     } else {
       reasons.push(
-        `✗ Max Drawdown (${mdd.toFixed(4)}) < ${this.maxDrawdownThreshold}`
+        `✗ Max Drawdown (${mdd.toFixed(4)}) ≥ ${this.maxDrawdownThreshold}`
       );
     }
 
+    // Number of Trades
     totalChecks++;
     const numTrades = metrics["Number of Trades"];
-    if (numTrades >= this.minTrades) {
+    if (numTrades > this.minTrades) {
       passedChecks++;
-      reasons.push(`✓ Number of Trades (${numTrades}) >= ${this.minTrades}`);
+      reasons.push(
+        `✓ Number of Trades (${numTrades}) > ${this.minTrades}`
+      );
     } else {
-      reasons.push(`✗ Number of Trades (${numTrades}) < ${this.minTrades}`);
+      reasons.push(
+        `✗ Number of Trades (${numTrades}) ≤ ${this.minTrades}`
+      );
     }
 
     const isRecommended = passedChecks === totalChecks;
@@ -527,9 +478,8 @@ class StrategyEvaluator {
   }
 }
 
-// ============================================================================
-// Telegram Notifier (replaces telegram_notifier.py)
-// ============================================================================
+
+// Telegram Notifier
 
 class TelegramNotifier {
   constructor(botToken, chatId) {
@@ -684,7 +634,6 @@ class TelegramNotifier {
         ? "Short"
         : "Flat";
 
-    // 正确的 Z-Score 对比：long 用 entry，short 用 exit
     let zCompareText = "";
     if (positionLabel === "long") {
       zCompareText = `${zscore.toFixed(2)} ${
@@ -711,9 +660,7 @@ class TelegramNotifier {
   }
 }
 
-// ============================================================================
 // Chart Generator
-// ============================================================================
 
 function generateEquityCurve(data) {
   const canvas = document.getElementById("equityCurveChart");
@@ -787,9 +734,7 @@ function generateEquityCurve(data) {
   });
 }
 
-// ============================================================================
 // Main Application Logic
-// ============================================================================
 
 const dataFetcher = new DataFetcher();
 const backtestEngine = new BacktestEngine();
@@ -1262,9 +1207,8 @@ function resetTelegramButton() {
   }
 }
 
-// ============================================================================
 // Live Monitoring Functions
-// ============================================================================
+
 
 /**
  * Check for trading signals and send notifications

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Documentation – Bitcoin Z-Score Analyzer</title>
 
-    <!-- FIXED: Remove Flask path -->
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -21,7 +20,6 @@
           </div>
         </div>
 
-        <!-- FIXED navigation links -->
         <nav class="header-nav">
           <a href="index.html" class="nav-link">Home</a>
           <a href="docs.html" class="nav-link active">Documentation</a>
@@ -39,7 +37,78 @@
           backtesting and evaluating mean reversion trading strategies.
         </p>
 
-        <h3>1. Strategy Parameters</h3>
+        <h3>1. Z-Score Overview</h3>
+          <div class="info-box parameters-box">
+          <p>
+            Z-Score is a statistical standardization method used to quantify how far a
+            data point deviates from its historical average, measured in units of
+            standard deviation. In this system, Z-Score is applied to Bitcoin price data
+            to normalize raw price movements and make them comparable across time.
+          </p>
+
+          <p>
+            Raw Bitcoin prices are highly volatile and scale-dependent, which makes it
+            difficult to directly identify meaningful patterns. Z-Score transforms this
+            raw data into a standardized form, allowing the system to distinguish between
+            normal market fluctuations and statistically abnormal price behavior.
+          </p>
+
+          <h4>📐 Z-Score Formula</h4>
+
+          <div class="formula-box">
+            <code>Z = (P − μ) / σ</code>
+          </div>
+
+          <ul>
+            <li><strong>P</strong> — Current Bitcoin price</li>
+            <li><strong>μ</strong> — Mean price over the rolling lookback window</li>
+            <li><strong>σ</strong> — Standard deviation over the same window</li>
+          </ul>
+
+          <p>
+            By converting raw price data into Z-Score values, the system effectively
+            filters out insignificant noise and highlights price movements that deviate
+            meaningfully from historical norms. These deviations form the statistical
+            foundation for later strategy evaluation.
+          </p>
+
+
+          <h4>📈 Interpreting Z-Score Extremes</h4>
+
+          <p>
+            Z-Score is primarily used to identify <strong>statistically abnormal price
+            behavior</strong>. When the absolute value of the Z-Score becomes large, it
+            indicates that the current price has deviated significantly from its
+            historical average and is no longer behaving within a normal range.
+          </p>
+
+          <ul>
+            <li>
+              <strong>High positive Z-Score</strong> indicates that the price is far above
+              its historical mean, suggesting a potential state of price extension.
+            </li>
+            <li>
+              <strong>Low negative Z-Score</strong> indicates that the price is far below
+              its historical mean, suggesting a potential state of price compression.
+            </li>
+          </ul>
+
+          <p>
+            These extreme deviations do not directly imply an immediate trading action.
+            Instead, they serve as <strong>contextual signals</strong> that are later
+            evaluated by the selected strategy logic, entry thresholds, exit thresholds,
+            and execution rules defined in the Strategy Parameters section.
+          </p>
+
+          <p>
+            By separating statistical detection from execution logic, the system ensures
+            that Z-Score is used purely as a <strong>feature extraction and normalization
+            mechanism</strong>, while trading decisions remain fully configurable and
+            strategy-dependent.
+          </p>
+        </div>
+
+        <h3>2. Strategy Parameters</h3>
 
         <div class="info-box parameters-box">
 
@@ -113,7 +182,7 @@
         </div>
 
 
-        <h3>2. Performance Metrics</h3>
+        <h3>3. Performance Metrics</h3>
 
         <div class="info-box metrics-box">
           <!-- Sharpe Ratio -->
@@ -170,7 +239,7 @@
           </div>
         </div>
 
-        <h3>3. Equity Curve</h3>
+        <h3>4. Equity Curve</h3>
 
         <div class="info-box metrics-box">
           <div class="metric-item">
@@ -199,7 +268,7 @@
           </div>
         </div>
 
-        <h3>4. Telegram Notification Setup</h3>
+        <h3>5. Telegram Notification Setup</h3>
 
         <div class="info-box metrics-box">
 
@@ -260,7 +329,7 @@
         </div>
 
 
-        <h3>5. Monitoring Requirements</h3>
+        <h3>6. Monitoring Requirements</h3>
 
         <div class="info-box metrics-box">
           
@@ -347,4 +416,3 @@
     </footer>
   </body>
 </html>
-
