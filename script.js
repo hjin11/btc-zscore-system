@@ -1522,6 +1522,11 @@ async function handleStartMonitor() {
     monitorStatus.textContent =
       "🟢 Monitoring started. Z-Score is calculated at every hourly candle...";
   }
+  // 🔔 Show monitoring warning
+  const monitorWarning = document.getElementById("monitorWarning");
+  if (monitorWarning) {
+    monitorWarning.style.display = "block";
+  }
 
   // Run immediately
   await checkTradingSignal();
