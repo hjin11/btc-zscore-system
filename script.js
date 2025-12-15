@@ -528,7 +528,7 @@ class TelegramNotifier {
     });
 
     const testMessage =
-      "🤖 <b>Bitcoin Trading Strategy System</b>\n\n" +
+      "🤖 Bitcoin Trading Strategy System\n\n" +
       "✅ Telegram connection test successful!\n" +
       `⏰ Time: ${timestamp}\n\n` +
       "System is ready to monitor Bitcoin prices and send trading signals.";
