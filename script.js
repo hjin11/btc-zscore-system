@@ -448,16 +448,18 @@ class StrategyEvaluator {
     // Max Drawdown
     totalChecks++;
     const mdd = metrics["Max Drawdown"];
-    if (mdd < this.maxDrawdownThreshold) {
+
+    if (!isNaN(mdd) && mdd >= this.maxDrawdownThreshold) {
       passedChecks++;
       reasons.push(
-        `✓ Max Drawdown (${mdd.toFixed(4)}) < ${this.maxDrawdownThreshold}`
+        `✓ Max Drawdown (${mdd.toFixed(4)}) ≥ ${this.maxDrawdownThreshold}`
       );
     } else {
       reasons.push(
-        `✗ Max Drawdown (${mdd.toFixed(4)}) ≥ ${this.maxDrawdownThreshold}`
+        `✗ Max Drawdown (${mdd.toFixed(4)}) < ${this.maxDrawdownThreshold}`
       );
     }
+
 
     // Number of Trades
     totalChecks++;
